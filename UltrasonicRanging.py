@@ -9,12 +9,19 @@
 # modification: 2020/11/25
 ########################################################################
 import RPi.GPIO as GPIO
+import requests
+import uuid
+import json as jsn
+import sys
 import time
+import datetime
+from datetime import datetime, tzinfo, timedelta
 
 trigPin = 40
 echoPin = 38
 MAX_DISTANCE = 220          # define the maximum measuring distance, unit: cm
 timeOut = MAX_DISTANCE*60   # calculate timeout according to the maximum measuring distance
+sensorSurfaceDistance = 90
 
 def pulseIn(pin,level,timeOut): # obtain pulse time of a pin under timeOut
     t0 = time.time()
@@ -41,6 +48,21 @@ def setup():
     GPIO.setup(trigPin, GPIO.OUT)   # set trigPin to OUTPUT mode
     GPIO.setup(echoPin, GPIO.IN)    # set echoPin to INPUT mode
 
+def motionDict(newPosition): 
+    reqDict = {"SensorID": "",
+      "LocationID": "",
+        "MotionStartDt": "",
+        "MotionEndDt": "",
+        "Measurements": []}
+    
+    return reqDict
+
+def measurementDict(newPosition):
+    measurementObj = {"Measurements": [{
+            "Report": str(sensorSurfaceDistance - newPosition),
+            "ReportDT": datetime.utcnow().replace(tzinfo=simple_utc()).isoformat()
+        }]}
+
 def loop():
     while(True):
         distance = getSonar() # get distance
@@ -51,6 +73,34 @@ def loop():
         #array and POST to admFitqueMotionAPI with location (self) for storage
         #FYI - no further intelligence required, analytics services will pair the data with whoever is
         #logged into the machine
+        reqDict = motionDict()
+        while (distance/sensorSurfaceDistance <= 0.75)
+        {
+            repDistance = getSonar()
+
+            if (reqDict["Measurements"].__len__ == 0)
+            {
+                reqDict["LocationID"] = "LA-Gunn_CableLatPull-1"
+                reqDict["SensorID"] = "CABLELATPULL"
+                reqDict["MotionStartDt"] = datetime.utcnow().replace(tzinfo=simple_utc()).isoformat()
+                reqDict["MotionEndDt"] = datetime.utcnow().replace(tzinfo=simple_utc()).isoformat()
+                
+                reqDict["Measurements"].append(measurementDict(repDistance))
+            } else:
+                reqDict["Measurements"].append(measurementDict(repDistance))
+
+            time.sleep(.4)
+
+            distance = reqDistance
+        }
+
+        if (reqDict["Measurements"].__len__ >= 0)
+            {
+                reqDict["MotionEndDt"] = datetime.utcnow().replace(tzinfo=simple_utc()).isoformat()
+                #Send reqDict in POST
+                print(jsn.dumps(reqDict))
+            }
+
         time.sleep(1)
 
 if __name__ == '__main__':     # Program entrance

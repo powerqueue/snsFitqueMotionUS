@@ -74,8 +74,10 @@ def loop():
         #FYI - no further intelligence required, analytics services will pair the data with whoever is
         #logged into the machine
         reqDict = motionDict()
-        while (distance/sensorSurfaceDistance <= 0.75)
+        distanceRatio = distance/sensorSurfaceDistance
+        while(distanceRatio<=0.75)
         {
+            print ("Execise Rep has started with distance: %.2f cm"%(distance))
             repDistance = getSonar()
 
             if (reqDict["Measurements"].__len__ == 0)
@@ -98,7 +100,15 @@ def loop():
             {
                 reqDict["MotionEndDt"] = datetime.utcnow().replace(tzinfo=simple_utc()).isoformat()
                 #Send reqDict in POST
+                headers = {'Content-Type': 'application/json'}
+                url = 'http://192.168.1.178:3001/fitqueue-motion-api/v1/create-motion'
+                print("Exercise Rep has ended.)
                 print(jsn.dumps(reqDict))
+                response = requests.request("POST", url, headers=headers, data=jsn.dumps(reqDict))
+                print("Status code: ", response.status_code)
+                print("Printing Entire Post Request")
+                print(response.content)
+                ######################
             }
 
         time.sleep(1)
